@@ -30,7 +30,7 @@ jobs:
       - name: "Load super-linter environment file"
         run: |
           if [ -f "./.github/super-linter-env.properties" ]; then
-            cat "./.github/super-linter-env.properties" >> $GITHUB_ENV
+            cat "./.github/super-linter-env.properties" | sed -ne/./p | grep -v "^#" >> $GITHUB_ENV
           fi
       - name: Lint Code Base
         uses: super-linter/super-linter@v7
