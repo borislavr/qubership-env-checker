@@ -1,2 +1,5 @@
+
+quiet: true
+
 skip-check:
   - CKV_K8S_21
