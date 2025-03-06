@@ -29,12 +29,11 @@ jobs:
           fetch-depth: 0
       - name: "Load super-linter environment file"
         run: |
-          #if [ -f "./.github/super-linter.env" ]; then
-          #  grep "\S" ./.github/super-linter.env | grep -v "^#"
-          #  grep "\S" ./.github/super-linter.env | grep -v "^#" >> $GITHUB_ENV
-          #fi
-          # echo VALIDATE_JSCPD=false >> $GITHUB_ENV
-          source ./.github/super-linter.env
+          if [ -f "./.github/super-linter.env" ]; then
+            grep "\S" ./.github/super-linter.env | grep -v "^#"
+            grep "\S" ./.github/super-linter.env | grep -v "^#" >> $GITHUB_ENV
+          fi
+
       - name: Lint Code Base
         uses: super-linter/super-linter@v7
         env:
