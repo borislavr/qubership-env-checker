@@ -27,7 +27,11 @@ jobs:
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
-
+      - name: "Load super-linter environment file"
+        run: |
+          if [ -f ./.github/super-linter-env.properties ]; then
+            cat ./.github/super-linter-env.properties >> GITHUB_ENV
+          fi
       - name: Lint Code Base
         uses: super-linter/super-linter@v7
         env:
