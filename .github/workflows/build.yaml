@@ -32,10 +32,6 @@ jobs:
             context: .
             description: Environments Checker Base image
             file: Dockerfile
-          - name: qubership-test
-            context: .
-            description: test image
-            file: Dockerfile-test
         platform:
           # Platform name should be without `linux-` prefix.
           # For runners details see https://docs.github.com/en/actions/concepts/runners/github-hosted-runners#runner-images
