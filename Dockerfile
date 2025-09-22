@@ -1,4 +1,5 @@
-FROM debian:trixie-slim
+ARG BUILDPLATFORM
+FROM --platform=$BUILDPLATFORM debian:trixie-slim
 
 ARG NB_USER="jovyan"
 ARG NB_UID="1000"
@@ -84,11 +85,14 @@ RUN set -x && \
     # Check architecture
     arch=$(uname -m) && \
     if [ "${arch}" = "x86_64" ]; then \
-        arch="64"; \
+        MAMBA_ARCH="linux-64"; \
+    elif [ "${arch}" = "aarch64" ]; then \
+        MAMBA_ARCH="linux-aarch64"; \
+    else \
+        echo "Unsupported architecture: ${arch}"; exit 1; \
     fi && \
-    echo "Architecture: ${arch}" && \
     # Download micromamba.tar.bz2
-    if ! wget -qO /tmp/micromamba.tar.bz2 https://github.com/mamba-org/micromamba-releases/releases/download/2.0.4-0/micromamba-linux-64.tar.bz2; then \
+    if ! wget -qO /tmp/micromamba.tar.bz2 https://github.com/mamba-org/micromamba-releases/releases/download/2.0.4-0/micromamba-${MAMBA_ARCH}.tar.bz2; then \
         echo "Failed to download micromamba.tar.bz2"; \
         exit 1; \
     fi && \
@@ -241,17 +245,35 @@ RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
 WORKDIR "${HOME}"
 
 # Autodiscovery the latest version of kubectl, downloads and install it
-RUN KUBECTL_VERSION="$(curl -Ls https://dl.k8s.io/release/latest.txt)"; \
-    wget --progress=dot:giga -O /usr/local/bin/kubectl-${KUBECTL_VERSION} https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
+RUN set -x && \
+    arch=$(uname -m) && \
+    if [ "${arch}" = "x86_64" ]; then \
+        KUBE_ARCH="amd64"; \
+    elif [ "${arch}" = "aarch64" ]; then \
+        KUBE_ARCH="arm64"; \
+    else \
+        echo "Unsupported architecture: ${arch}"; exit 1; \
+    fi && \
+    KUBECTL_VERSION="$(curl -Ls https://dl.k8s.io/release/latest.txt)"; \
+    wget --progress=dot:giga -O /usr/local/bin/kubectl-${KUBECTL_VERSION} https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/${KUBE_ARCH}/kubectl && \
     chmod +x /usr/local/bin/kubectl-${KUBECTL_VERSION} && \
     ln -sf /usr/local/bin/kubectl-${KUBECTL_VERSION} /usr/local/bin/kubectl
 
 # Download and install yq
-RUN wget --progress=dot:giga https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_amd64.tar.gz && \
-    tar -xzvf yq_linux_amd64.tar.gz -C /usr/bin/ && \
-    mv /usr/bin/yq_linux_amd64 /usr/bin/yq && \
+RUN set -x && \
+    arch=$(uname -m) && \
+    if [ "${arch}" = "x86_64" ]; then \
+        YQ_ARCH="amd64"; \
+    elif [ "${arch}" = "aarch64" ]; then \
+        YQ_ARCH="arm64"; \
+    else \
+        echo "Unsupported architecture: ${arch}"; exit 1; \
+    fi && \
+    wget --progress=dot:giga https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_${YQ_ARCH}.tar.gz && \
+    tar -xzvf yq_linux_${YQ_ARCH}.tar.gz -C /usr/bin/ && \
+    mv /usr/bin/yq_linux_${YQ_ARCH} /usr/bin/yq && \
     chmod +x /usr/bin/yq && \
-    rm yq_linux_amd64.tar.gz
+    rm yq_linux_${YQ_ARCH}.tar.gz
 
 # update apt and install go. Uncomment if someday will need to write notebooks on golang
 # apt command is not recommended for installation from Dockerfile
