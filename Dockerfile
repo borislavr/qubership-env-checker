@@ -276,7 +276,7 @@ RUN set -x && \
 #RUN apt install golang -y
 
 # Install uv (fast Python package manager) and use it for pip installs
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN UV_INSTALL_PATH=/usr/local/bin curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install additional packages:
 #   aiohttp - async HTTP library
@@ -291,7 +291,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 #   scrapbook - saving notebook artifacts and metadata
 #   urllib3 - low-level HTTP client
 #   widgetsnbextension: Jupyter Notebook extension that enables interactive widgets in notebook cells (sliders, buttons, text boxes).
-RUN /root/.local/bin/uv pip install --system \
+RUN uv pip install --system \
     'aiohttp>=3.9.2' \
     'beautifulsoup4' \
     'boto3' \
