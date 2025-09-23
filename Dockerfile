@@ -165,9 +165,6 @@ RUN set -x && \
 ENTRYPOINT ["tini", "-g", "--"]
 WORKDIR "${HOME}"
 
-# Install uv (fast Python package manager) and use it for pip installs
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # Install all OS dependencies for fully functional notebook server:
 #   fonts-liberation - used by nbconvert (PDF/HTML export)
 #   pandoc - document converter for notebooks, used for HTML/Markdown/partial PDF
@@ -277,6 +274,9 @@ RUN set -x && \
 # apt command is not recommended for installation from Dockerfile
 #RUN apt -o Acquire::Check-Valid-Until=false update
 #RUN apt install golang -y
+
+# Install uv (fast Python package manager) and use it for pip installs
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install additional packages:
 #   aiohttp - async HTTP library
