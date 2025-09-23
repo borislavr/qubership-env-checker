@@ -275,8 +275,9 @@ RUN set -x && \
 #RUN apt -o Acquire::Check-Valid-Until=false update
 #RUN apt install golang -y
 
-# Install uv (fast Python package manager) and use it for pip installs
-RUN UV_INSTALL_PATH=/usr/local/bin curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install uv (fast Python package manager) and move in /usr/local/bin
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    mv /home/jovyan/.local/bin/uv /usr/local/bin/uv
 
 # Install additional packages:
 #   aiohttp - async HTTP library
