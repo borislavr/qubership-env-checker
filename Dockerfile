@@ -324,7 +324,7 @@ RUN uv pip install --system \
     # 'pypdf2' \ - PDF manipulation — read/merge/split, rotate/crop/number, encrypt/decrypt, watermarks. Does not render or redraw pages
     # 'pytables' \ - high‑level HDF5 wrapper for tabular/hierarchical data. Use for large on‑disk tables with fast filters/indexes and row‑wise appends
     # 'sqlalchemy' \ - RDBMS access library (PostgreSQL, MySQL, SQLite); provides SQL execution tools and an ORM for working with databases.
-    'yaml' && \
+    'pyyaml' && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}/"
