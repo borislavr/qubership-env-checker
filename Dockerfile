@@ -165,10 +165,8 @@ RUN set -x && \
 ENTRYPOINT ["tini", "-g", "--"]
 WORKDIR "${HOME}"
 
-# install opentelemetry exporter
-RUN pip install --no-cache-dir \
-    opentelemetry-exporter-prometheus-remote-write \
-    redis
+# Install uv (fast Python package manager) and use it for pip installs
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install all OS dependencies for fully functional notebook server:
 #   fonts-liberation - used by nbconvert (PDF/HTML export)
@@ -293,18 +291,20 @@ RUN set -x && \
 #   scrapbook - saving notebook artifacts and metadata
 #   urllib3 - low-level HTTP client
 #   widgetsnbextension: Jupyter Notebook extension that enables interactive widgets in notebook cells (sliders, buttons, text boxes).
-RUN mamba install --yes \
+RUN /root/.local/bin/uv pip install --system \
     'aiohttp>=3.9.2' \
     'beautifulsoup4' \
     'boto3' \
     'bottleneck' \
     'jupyter_server>=2.0.0' \
     'opentelemetry-api' \
+    'opentelemetry-exporter-prometheus-remote-write' \
     'opentelemetry-sdk' \
     'opentelemetry-semantic-conventions' \
     'pandas' \
     'papermill' \
     'python-kubernetes' \
+    'redis' \
     'scrapbook' \
     'urllib3>=2.0.6' \
     'widgetsnbextension' \
