@@ -199,8 +199,8 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update --yes && \
 #   traitlets - required by jupyterlab. Without the library, the JupyterLab/Notebook/Server configuration
 #   will be broken. Using a version less than 5.10 to avoid conflicts with jupyter packages.
 #   notebook - required by jupyterlab (UI start)
-#   jupyterlab-lsp- фронтенд расширение JupyterLab (UI: подсветка ошибок, автодополнение, переход к определению и т.п.).
-#   jupyter-lsp - серверное расширение Jupyter для проксирования Language Server Protocol.
+#   jupyterlab-lsp – jupyterLab frontend extension (UI: error highlighting, autocompletion, go to definition, etc.).
+#   jupyter-lsp – jupyter server extension for proxying Language Server Protocol.
 #   jupyterlab - required for UI start
 # Generate a notebook server config
 # Cleanup temporary files
