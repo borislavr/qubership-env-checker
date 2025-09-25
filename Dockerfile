@@ -204,13 +204,12 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update --yes && \
 #   jupyterlab - required for UI start
 # Generate a notebook server config
 # Cleanup temporary files
-# todo: jupyterlab-lsp and jupyter-lsp are disable because they should work with separate LSP-server (pylsp)
 WORKDIR /tmp
 RUN mamba install --yes \
         'traitlets<5.10' \
         'notebook' \
-        #'jupyterlab-lsp=5.2.0' \
-        #'jupyter-lsp=2.2.6' \
+        'jupyterlab-lsp=5.2.0' \
+        'jupyter-lsp=2.2.6' \
         #'jupyterhub=5.3.0' \
         'jupyterlab=4.4.5' \
         'nodejs=24.8.0' \
@@ -305,6 +304,7 @@ RUN mamba install --yes \
     'pandas' \
     'papermill' \
     'python-kubernetes' \
+    'python-lsp-server' \
     'scrapbook' \
     'urllib3>=2.0.6' \
     'widgetsnbextension' \
