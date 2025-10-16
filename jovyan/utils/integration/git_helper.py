@@ -4,13 +4,14 @@ import subprocess
 import shutil
 from urllib.parse import urlsplit, urlunsplit, quote
 
+
 def authenticate_repo_url(repo_url: str) -> str:
     """
     Authenticate repository URL using environment variables if available.
-    
+
     Args:
         repo_url (str): The original repository URL.
-        
+
     Returns:
         str: Authenticated URL if GIT_USERNAME/GIT_TOKEN are available, otherwise original URL.
     """
@@ -20,22 +21,24 @@ def authenticate_repo_url(repo_url: str) -> str:
         return get_auth_string(token=token, username=username, repo_url=repo_url)
     return repo_url
 
-def fetch_from_repo(repo_url: str, target_path: str, sparse_path: str, branch: str = "main", subfolder: str = "") -> bool:
+
+def fetch_from_repo(repo_url: str, target_path: str, sparse_path: str,
+                    branch: str = "main", subfolder: str = "") -> bool:
     """
     Sparse-checkout a repository path into target_path.
     If GIT_USERNAME/GIT_TOKEN are present in the environment, the function
     will authenticate by embedding credentials into the repo URL (HTTPS only).
-    
+
     Args:
         repo_url (str): The URL of the Git repository.
         target_path (str): Local directory where files will be fetched.
         sparse_path (str): Path to fetch from the repository.
         branch (str): Branch to fetch from. Defaults to "main".
         subfolder (str): Subfolder to move files to. Defaults to "".
-        
+
     Returns:
         bool: True if successful.
-        
+
     Raises:
         FileExistsError: If target_path already exists.
         subprocess.CalledProcessError: If git commands fail.
@@ -87,6 +90,7 @@ def fetch_from_repo(repo_url: str, target_path: str, sparse_path: str, branch: s
             shutil.rmtree(top_level)
     return True
 
+
 def get_auth_string(token: str, username: str, repo_url: str) -> str:
     """
     Authenticate with a Git repository using a token and a username.
@@ -118,6 +122,7 @@ def get_auth_string(token: str, username: str, repo_url: str) -> str:
     auth = f"{quote(username)}:{quote(token)}@" if username and token else ""
     new_netloc = f"{auth}{host}{port}"
     return urlunsplit((parts.scheme, new_netloc, parts.path, parts.query, parts.fragment))
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:

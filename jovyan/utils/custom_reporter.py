@@ -50,6 +50,7 @@ class Report:
 
     def getExceptionStatus(self):
         return self.isExceptionOccured
+
     def setExceptionStatus(self):
         self.isExceptionOccured = True
 

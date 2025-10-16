@@ -6,7 +6,6 @@ import zipfile
 from io import BytesIO
 import colorize_text
 import requests
-import datetime
 import yaml
 import re
 import scrapbook as sb
@@ -26,16 +25,18 @@ def get_env_variable_value_by_name(variable_name):
 
     return env_variable
 
+
 def get_default_env_variable_value_by_name(variable_name):
     env_variable = None
     path_to_env = "/etc/cloud-passport-defaults/" + variable_name
-    if not os.path.isfile(path_to_env): 
-        #print(colorize_text.get_red_text_color(f"Could not get default environment value {variable_name}."))
+    if not os.path.isfile(path_to_env):
+        # print(colorize_text.get_red_text_color(f"Could not get default environment value {variable_name}."))
         return None
     with open(path_to_env, 'r') as f:
         env_variable = f.read()
 
     return env_variable
+
 
 global log_level
 global production_mode
@@ -223,9 +224,10 @@ def load_result_yml(dir: str):
             print(f'An error occured while parsing result.yaml: {e}')
             return
 
+
 def get_cloud_name() -> str:
-    """ 
-    Calculates cloud name from given cloud passport param CLOUD_PUBLIC_HOST    
+    """
+    Calculates cloud name from given cloud passport param CLOUD_PUBLIC_HOST
     """
     cloud_name = get_env_variable_value_by_name("CLOUD_PUBLIC_HOST")
 
