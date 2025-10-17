@@ -5,6 +5,24 @@ import shutil
 from urllib.parse import urlsplit, urlunsplit, quote
 
 
+def get_git_config():
+    """
+    Get Git configuration from environment variables with default values.
+
+    Returns:
+        dict: Dictionary containing all Git configuration values.
+    """
+    return {
+        'username': os.environ.get("GIT_USERNAME", ""),
+        'token': os.environ.get("GIT_TOKEN", ""),
+        'repository_url': os.environ.get("GIT_REPOSITORY_URL", ""),
+        'target_path': os.environ.get("GIT_TARGET_PATH", ""),
+        'sparse_path': os.environ.get("GIT_SPARSE_PATH", ""),
+        'branch': os.environ.get("GIT_BRANCH", "main"),
+        'subfolder': os.environ.get("GIT_SUBFOLDER", "")
+    }
+
+
 def authenticate_repo_url(repo_url: str) -> str:
     """
     Authenticate repository URL using environment variables if available.
@@ -15,8 +33,9 @@ def authenticate_repo_url(repo_url: str) -> str:
     Returns:
         str: Authenticated URL if GIT_USERNAME/GIT_TOKEN are available, otherwise original URL.
     """
-    username = os.environ.get("GIT_USERNAME")
-    token = os.environ.get("GIT_TOKEN")
+    config = get_git_config()
+    username = config.get('username')
+    token = config.get('token')
     if username and token:
         return get_auth_string(token=token, username=username, repo_url=repo_url)
     return repo_url
@@ -124,13 +143,66 @@ def get_auth_string(token: str, username: str, repo_url: str) -> str:
     return urlunsplit((parts.scheme, new_netloc, parts.path, parts.query, parts.fragment))
 
 
+def fetch_from_git_config() -> bool:
+    """
+    Fetch repository using Git configuration from environment variables.
+
+    Returns:
+        bool: True if successful.
+    """
+    config = get_git_config()
+
+    # Validate required configuration
+    required_fields = ['repository_url', 'target_path']
+    missing_fields = [field for field in required_fields if not config.get(field)]
+
+    if missing_fields:
+        print(f"ERROR: Missing required Git configuration: {', '.join(missing_fields)}")
+        print("Required environment variables:")
+        print("  GIT_REPOSITORY_URL - URL of the Git repository")
+        print("  GIT_TARGET_PATH - Local directory where files will be fetched")
+        return False
+
+    # Use defaults for optional fields
+    repo_url = config['repository_url']
+    target_path = config['target_path']
+    sparse_path = config.get('sparse_path', '')
+    branch = config.get('branch', 'main')
+    subfolder = config.get('subfolder', '')
+
+    print(f"Fetching repository: {repo_url}")
+    print(f"Target path: {target_path}")
+    print(f"Sparse path: {sparse_path or 'all files'}")
+    print(f"Branch: {branch}")
+    print(f"Subfolder: {subfolder or 'none'}")
+
+    try:
+        # Fetch the repository
+        success = fetch_from_repo(repo_url, target_path, sparse_path, branch, subfolder)
+        return success
+
+    except Exception as e:
+        print(f"ERROR: Failed to fetch repository: {e}")
+        return False
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("Usage: python3 git_helper.py <repo_url> <target_path> <sparse_path> [branch] [subfolder]")
-        sys.exit(1)
-    repo_url = sys.argv[1]
-    target_path = sys.argv[2]
-    sparse_path = sys.argv[3]
-    branch = sys.argv[4] if len(sys.argv) > 4 else "main"
-    subfolder = sys.argv[5] if len(sys.argv) > 5 else ""
-    fetch_from_repo(repo_url, target_path, sparse_path, branch, subfolder)
+    # No arguments - use environment variables (Helm-provided GIT_* envs)
+    if len(sys.argv) == 1:
+        success = fetch_from_git_config()
+        sys.exit(0 if success else 1)
+
+    # Explicit args mode: expect at least 3 required args
+    if len(sys.argv) >= 4:
+        repo_url = sys.argv[1]
+        target_path = sys.argv[2]
+        sparse_path = sys.argv[3]
+        branch = sys.argv[4] if len(sys.argv) > 4 else "main"
+        subfolder = sys.argv[5] if len(sys.argv) > 5 else ""
+        fetch_from_repo(repo_url, target_path, sparse_path, branch, subfolder)
+        sys.exit(0)
+
+    # Fallback: show usage when insufficient arguments were provided
+    print("Usage: python3 git_helper.py <repo_url> <target_path> <sparse_path> [branch] [subfolder]")
+    print("Or: python3 git_helper.py  # uses GIT_* environment variables")
+    sys.exit(1)

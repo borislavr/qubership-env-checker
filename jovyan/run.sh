@@ -10,17 +10,20 @@ pdf_reporting_enabled=true
 html_reporting_enabled=false
 json_reporting_enabled=false
 clear_out=true
+git_mode=false
 print_usage(){
     echo -e "   \033[1mUsage:\033[0m bash run.sh [OPTIONS] [-PARAM_NAME=PARAM_VALUE] COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH"
     echo -e "   \033[1mExecutes:\033[0m"
     echo -e "     - a single notebook with optional parameters"
     echo -e "     - a list of notebooks with parameters from a composite file"
+    echo -e "     - fetch from Git repository and run notebook (with --git flag)"
     echo -e "   \033[1mExamples:\033[0m"
     echo -e "     bash run.sh /home/jovyan/tests/notebooks/test_notebook.ipynb                         \033[36m# single notebook (no reports)\033[0m"
     echo -e "     bash run.sh --namespace=my_ns /home/jovyan/tests/notebooks/test_notebook.ipynb       \033[36m# single with param\033[0m"
     echo -e "     bash run.sh --pdf=false --html=true /home/jovyan/tests/notebooks/test_notebook.ipynb \033[36m# disable PDF, enable HTML\033[0m"
     echo -e "     bash run.sh --html=true tests/CompositeUnitTestNotebook.ipynb                        \033[36m# composite notebook (runs all unit checks)\033[0m"
     echo -e "     bash run.sh tests/composite_test.yaml                                                \033[36m# composite YAML bulk run\033[0m"
+    echo -e "     bash run.sh --git /path/to/notebook.ipynb                                            \033[36m# fetch from Git and run notebook\033[0m"
     echo -e "   \033[1mParameters for a single notebook:\033[0m"
     echo -e "     pass as --param=value on the command line"
     echo -e "     e.g. --namespace=my_ns --app=env-checker"
@@ -30,6 +33,7 @@ print_usage(){
     echo -e "   \033[1m  -j 1m (o)\033[0m                  \033[36m# Run JSON configuration provided inline (file path is ignored)\033[0m"
     echo -e "   \033[1m  -e 1m (o)\033[0m                  \033[36m# Execute a Python script that outputs YAML, then run that YAML\033[0m"
     echo -e "   \033[1m  -o 1m (o)\033[0m                  \033[36m# Place outputs under './out/<subfolder>'\033[0m"
+    echo -e "   \033[1m  --git 1m (o)\033[0m               \033[36m# Fetch notebook from Git repository before execution (requires GIT_* env vars)\033[0m"
     echo -e "   \033[1m  --pdf=false 1m (o)\033[0m         \033[36m# Disable PDF report generation\033[0m"
     echo -e "   \033[1m  --html=true 1m (o)\033[0m         \033[36m# Enable HTML summary generation from scrapbook data\033[0m"
     echo -e "   \033[1mComposite YAML example:\033[0m"
@@ -317,6 +321,9 @@ while getopts ":p:y:j:r:e:o:-:" opt; do
     case ${opt} in
     -)
         case "${OPTARG}" in
+                git)
+                    git_mode=true
+                    ;;
                 *)
                 # Handling other flags
                 params="${params}
@@ -332,6 +339,9 @@ while getopts ":p:y:j:r:e:o:-:" opt; do
                 fi
                 if [[ ${OPTARG} == "clear=false" ]]; then
                         clear_out=false
+                fi
+                if [[ ${OPTARG} == "git=false" ]]; then
+                        git_mode=false
                 fi
                 ;;
             esac
@@ -385,6 +395,25 @@ else
   out_path="/home/jovyan/out"
 fi
 
+# Handle Git mode first - fetch repository
+if [[ $git_mode == true ]]; then
+    prepareOutput
+    echo "Git mode enabled - fetching repository first"
+    
+    # Fetch repository using git_helper.py (validation happens inside Python script)
+    echo "Fetching from Git repository..."
+    python /home/jovyan/utils/integration/git_helper.py
+    
+    if [[ $? != 0 ]]; then
+        printf "ERROR: Git fetch failed\n"
+        overall_result=1
+        exit 1
+    else
+        echo "Git fetch completed successfully"
+    fi
+fi
+
+# Now handle notebook execution (independent of git mode)
 if [[ -n $json_config ]]; then
     prepareOutput
     echo "$json_config" > "$out_path/input.json"
@@ -405,6 +434,7 @@ elif [[ $file_path == *.yaml || $file_path == *.yml ]]; then
     runComposite "$file_path"
 else
     printf "ERROR: file %s is not exist or invalid" "$file_path"
+    overall_result=1
 fi
 
 echo "overall_result: $overall_result"
