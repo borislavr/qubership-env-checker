@@ -402,9 +402,7 @@ if [[ $git_mode == true ]]; then
     
     # Fetch repository using git_helper.py (validation happens inside Python script)
     echo "Fetching from Git repository..."
-    python /home/jovyan/utils/integration/git_helper.py
-    
-    if [[ $? != 0 ]]; then
+    if ! python /home/jovyan/utils/integration/git_helper.py; then
         printf "ERROR: Git fetch failed\n"
         overall_result=1
         exit 1

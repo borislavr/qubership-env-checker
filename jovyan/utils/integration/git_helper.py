@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 import shutil
+import requests
 from urllib.parse import urlsplit, urlunsplit, quote
 
 
@@ -21,6 +22,24 @@ def get_git_config():
         'branch': os.environ.get("GIT_BRANCH", "main"),
         'subfolder': os.environ.get("GIT_SUBFOLDER", "")
     }
+
+
+def check_repo_exists(repo_url: str) -> bool:
+    """
+    Simple repository existence check via GET request.
+
+    Args:
+        repo_url (str): Repository URL
+
+    Returns:
+        bool: True if repository exists, False if not
+    """
+    try:
+        response = requests.get(repo_url, timeout=10)
+        return response.status_code != 404
+    except:
+        # If request fails, assume repository exists and let git handle it
+        return True
 
 
 def authenticate_repo_url(repo_url: str) -> str:
@@ -62,11 +81,14 @@ def fetch_from_repo(repo_url: str, target_path: str, sparse_path: str,
         FileExistsError: If target_path already exists.
         subprocess.CalledProcessError: If git commands fail.
     """
+    print(f"repo_url={repo_url}, target_path={target_path}, sparse_path={sparse_path}, branch={branch}, subfolder={subfolder}")
+
     # Authenticate URL if credentials are available
     repo_url = authenticate_repo_url(repo_url)
 
     if os.path.exists(target_path):
-        raise FileExistsError(f"Target path {target_path} already exists.")
+        print(f"Removed: {target_path}")
+        shutil.rmtree(target_path)
 
     # init empty repo and enable sparse checkout
     os.makedirs(target_path, exist_ok=True)
@@ -186,6 +208,28 @@ def fetch_from_git_config() -> bool:
         return False
 
 
+def run_fetch(repo_url: str, target_path: str, sparse_path: str,
+              branch: str = "main", subfolder: str = "") -> bool:
+    """
+    Simple wrapper for fetch_from_repo for use in tests.
+
+    Args:
+        repo_url (str): Repository URL
+        target_path (str): Target path
+        sparse_path (str): Sparse checkout path
+        branch (str): Branch
+        subfolder (str): Subfolder
+
+    Returns:
+        bool: True if successful, False if error
+    """
+    try:
+        return fetch_from_repo(repo_url, target_path, sparse_path, branch, subfolder)
+    except Exception as e:
+        print(f"ERROR: Failed to fetch repository: {e}")
+        return False
+
+
 if __name__ == "__main__":
     # No arguments - use environment variables (Helm-provided GIT_* envs)
     if len(sys.argv) == 1:
@@ -195,6 +239,12 @@ if __name__ == "__main__":
     # Explicit args mode: expect at least 3 required args
     if len(sys.argv) >= 4:
         repo_url = sys.argv[1]
+
+        # Check if repository exists before proceeding
+        if not check_repo_exists(repo_url):
+            print(f"ERROR: Repository does not exist: {repo_url}")
+            sys.exit(1)
+
         target_path = sys.argv[2]
         sparse_path = sys.argv[3]
         branch = sys.argv[4] if len(sys.argv) > 4 else "main"
