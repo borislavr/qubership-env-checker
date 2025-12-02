@@ -12,8 +12,10 @@ APP_METRICS_SCHEMA = {
         "properties": {
             "initiator": {"type": "string"},
             "last_run": {
-                "$comment": "Amount of unix epoch milliseconds, indicating time when first (!) check in notebook was started. " + 
-                "This time is supposed to be same (!) for all applications (namespaces), which are checked in notebook.",
+                "$comment": "Amount of unix epoch milliseconds, indicating time when first (!) " +
+                "check in notebook was started. " +
+                "This time is supposed to be same (!) for all applications (namespaces), " +
+                "which are checked in notebook.",
                 "type": "number",
                 "minimum": 0,
                 "maximum": 2147483647000
@@ -34,9 +36,10 @@ APP_METRICS_SCHEMA = {
             "scope": {"type": "string"},
             "env": {"type": "string"}
         },
-        "required": ["report_namespace", "status"]    
+        "required": ["report_namespace", "status"]
     }
 }
+
 
 def validate_app_metrics_schema_as_dict(metrics: dict) -> bool:
     try:
@@ -46,6 +49,7 @@ def validate_app_metrics_schema_as_dict(metrics: dict) -> bool:
         return False
     print(0)
     return True
+
 
 def validate_app_metrics_schema(metrics_json: str) -> bool:
     metrics = {}

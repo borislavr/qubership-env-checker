@@ -6,7 +6,6 @@ import zipfile
 from io import BytesIO
 import colorize_text
 import requests
-import datetime
 import yaml
 import re
 import scrapbook as sb
@@ -26,16 +25,19 @@ def get_env_variable_value_by_name(variable_name):
 
     return env_variable
 
+
 def get_default_env_variable_value_by_name(variable_name):
     env_variable = None
     path_to_env = "/etc/cloud-passport-defaults/" + variable_name
-    if not os.path.isfile(path_to_env): 
-        #print(colorize_text.get_red_text_color(f"Could not get default environment value {variable_name}."))
+    if not os.path.isfile(path_to_env):
+        # msg = f"Could not get default environment value {variable_name}."
+        # print(colorize_text.get_red_text_color(msg))
         return None
     with open(path_to_env, 'r') as f:
         env_variable = f.read()
 
     return env_variable
+
 
 global log_level
 global production_mode
@@ -120,16 +122,16 @@ def zip(filenames: list[str]) -> BytesIO:
 
 def zipFilesWithTimestamp(filenames: list[str]) -> BytesIO:
     '''
-    WARNIGN: must be used for run.sh only.
+    WARNING: must be used for run.sh only.
     '''
     if not filenames:
         return
     zip_stream = BytesIO()
     with zipfile.ZipFile(zip_stream, 'w') as zip:
         for fname in filenames:
+            # take report name and cut off timestamp
             fname_in_archive = re.sub(r'(.*)(_\d+)(\.\w+$)', r'\1\3',
-                                      os.path.basename(
-                                          fname))  # take report name and cut off timestamp
+                                      os.path.basename(fname))
             zip.write(filename=fname, arcname=fname_in_archive)
     return zip_stream
 
@@ -141,7 +143,6 @@ def zip_reports_by_base_name(report_base_name) -> BytesIO:
 
 
 def get_report_names_by_base_name(report_base_name: str) -> list[str]:
-    global log_level
     out_files_list = []
     for filename in os.listdir('out'):
         out_files_list.append(filename)
@@ -156,8 +157,8 @@ def get_report_names_by_base_name(report_base_name: str) -> list[str]:
             filtered_files_list.append(os.path.join('out', filename))
 
     if not filtered_files_list:
-        print(
-            'No reports found in out directory for base name ' + report_base_name)
+        print('No reports found in out directory for base name',
+              report_base_name)
     elif log_level != 'ERROR' and log_level is not None:
         print('filtered_files_list= ' + str(filtered_files_list))
 
@@ -169,11 +170,11 @@ def check_connection_status(url, headers=None, path=''):
         response = requests.get(url + path, headers=headers, verify=False)
         if response.status_code == 200:
             print(colorize_text.get_green_text_color(
-                f"Connection to {url + path} is successfull"))
+                f"Connection to {url + path} is successful"))
             return 1
         else:
             print(colorize_text.get_red_text_color(
-                f"Connection to {url + path} is not successfull"))
+                f"Connection to {url + path} is not successful"))
             return 0
     except Exception as e:
         print(colorize_text.get_red_text_color(f"An error occurred: {str(e)}"))
@@ -192,13 +193,16 @@ def get_related_reports(out_script_path, outs_as_json_str, out_path):
     if "custom_reports" in nb.scraps.data_dict:
         custom_reports = nb.scraps.data_dict["custom_reports"]
         if len(custom_reports) != 0:
-            custom_reports = [out_path + "/" + report for report in custom_reports]
+            custom_reports = [
+                out_path + "/" + report for report in custom_reports
+            ]
             out_list.extend(custom_reports)
     return json.dumps(out_list)
 
 
-def get_report_names_from_result_file(executed_notebook_path: str) -> list[
-    str]:
+def get_report_names_from_result_file(
+    executed_notebook_path: str,
+) -> list[str]:
     result = load_result_yml(os.path.dirname(executed_notebook_path))
     if result:
         for check in result['checks']:
@@ -223,9 +227,10 @@ def load_result_yml(dir: str):
             print(f'An error occured while parsing result.yaml: {e}')
             return
 
+
 def get_cloud_name() -> str:
-    """ 
-    Calculates cloud name from given cloud passport param CLOUD_PUBLIC_HOST    
+    """
+    Calculates cloud name from given cloud passport param CLOUD_PUBLIC_HOST
     """
     cloud_name = get_env_variable_value_by_name("CLOUD_PUBLIC_HOST")
 
