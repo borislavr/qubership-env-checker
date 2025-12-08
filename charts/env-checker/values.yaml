@@ -52,6 +52,12 @@ STORAGE_USERNAME: ''
 STORAGE_PASSWORD: ''
 STORAGE_REGION: ''
 
+# Git username, token and domain for legacy git_helper.sh.
+ENVCHECKER_GIT_USERNAME: ''
+ENVCHECKER_GIT_TOKEN: ''
+# If empty, will be extracted from repositoryUrl.
+ENVCHECKER_GIT_DOMAIN: ''
+
 git:
   # Username for accessing a private GIT repository. Used for authentication.
   username: ''
@@ -67,4 +73,3 @@ git:
   branch: 'main'
   # Subfolder inside targetPath where fetched files will be moved (optional).
   subfolder: ''
-

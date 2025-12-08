@@ -11,6 +11,8 @@ html_reporting_enabled=false
 json_reporting_enabled=false
 clear_out=true
 git_mode=false
+git_source=""  # DEPRECATED: For backward compatibility with --git=URL format
+relative_path=""  # DEPRECATED: For backward compatibility
 print_usage(){
     echo -e "   \033[1mUsage:\033[0m bash run.sh [OPTIONS] [-PARAM_NAME=PARAM_VALUE] COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH"
     echo -e "   \033[1mExecutes:\033[0m"
@@ -23,7 +25,8 @@ print_usage(){
     echo -e "     bash run.sh --pdf=false --html=true /home/jovyan/tests/notebooks/test_notebook.ipynb \033[36m# disable PDF, enable HTML\033[0m"
     echo -e "     bash run.sh --html=true tests/CompositeUnitTestNotebook.ipynb                        \033[36m# composite notebook (runs all unit checks)\033[0m"
     echo -e "     bash run.sh tests/composite_test.yaml                                                \033[36m# composite YAML bulk run\033[0m"
-    echo -e "     bash run.sh --git /path/to/notebook.ipynb                                            \033[36m# fetch from Git and run notebook\033[0m"
+    echo -e "     bash run.sh --git /path/to/notebook.ipynb                                            \033[36m# fetch from Git and run notebook (new method, uses GIT_* env vars)\033[0m"
+    echo -e "     bash run.sh --git=https://git.example.com/repo.git notebook.ipynb                \033[36m# DEPRECATED: old method with URL in flag\033[0m"
     echo -e "   \033[1mParameters for a single notebook:\033[0m"
     echo -e "     pass as --param=value on the command line"
     echo -e "     e.g. --namespace=my_ns --app=env-checker"
@@ -34,6 +37,7 @@ print_usage(){
     echo -e "   \033[1m  -e 1m (o)\033[0m                  \033[36m# Execute a Python script that outputs YAML, then run that YAML\033[0m"
     echo -e "   \033[1m  -o 1m (o)\033[0m                  \033[36m# Place outputs under './out/<subfolder>'\033[0m"
     echo -e "   \033[1m  --git 1m (o)\033[0m               \033[36m# Fetch notebook from Git repository before execution (requires GIT_* env vars)\033[0m"
+    echo -e "   \033[1m  --git=URL 1m (o)\033[0m           \033[36m# DEPRECATED: Old method - fetch from Git URL specified in flag\033[0m"
     echo -e "   \033[1m  --pdf=false 1m (o)\033[0m         \033[36m# Disable PDF report generation\033[0m"
     echo -e "   \033[1m  --html=true 1m (o)\033[0m         \033[36m# Enable HTML summary generation from scrapbook data\033[0m"
     echo -e "   \033[1mComposite YAML example:\033[0m"
@@ -96,6 +100,12 @@ runComposite() {
 
 calculate_composite_notebook_path() {
 	notebook_path="$(echo "$composite_file_content" | yq -oy e ".checks.[$i] | select(.path != null) | .path")"
+	# DEPRECATED: Backward compatibility - check if path exists with relative_path prefix
+	if [[ -n $git_source ]]; then
+		if [[ -f "$relative_path/$notebook_path" ]]; then
+			notebook_path="$relative_path/$notebook_path"
+		fi
+	fi
 	echo "$notebook_path"
 }
 
@@ -324,6 +334,15 @@ while getopts ":p:y:j:r:e:o:-:" opt; do
                 git)
                     git_mode=true
                     ;;
+                git=*)
+                    # DEPRECATED: Backward compatibility - old format --git=URL
+                    if [[ $(cat /etc/cloud-passport/PRODUCTION_MODE 2>/dev/null) == true ]]; then
+                        echo "ERROR. '--git=URL' flag is not available for PRODUCTION_MODE=true"
+                        exit 1
+                    fi
+                    git_source="${OPTARG#git=}"
+                    echo "WARNING: --git=URL format is DEPRECATED. Please use --git flag with GIT_* environment variables instead."
+                    ;;
                 *)
                 # Handling other flags
                 params="${params}
@@ -386,7 +405,27 @@ while getopts ":p:y:j:r:e:o:-:" opt; do
     esac
 done
 
-file_path=${*:$OPTIND:1}  #get value after all options (COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH)
+# DEPRECATED: Backward compatibility - handle old --git=URL format
+#If receive data from GIT, will added the relative path of its new location to the executed COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH.
+if [[ -n $git_source ]]; then
+    if [ -f /home/jovyan/shells/git_helper.sh ]; then
+        # shellcheck disable=SC1091
+        # shellcheck source=/home/jovyan/shells/git_helper.sh
+        source /home/jovyan/shells/git_helper.sh "$git_source"
+        # Calculate relative_path as in original implementation (after source sets global variables)
+        relative_path=$(basename -s .git "$git_source")
+        # Call gitProcess to clone/pull repository (uses global variables set by source)
+        gitProcess
+        # Keep relative path as in original implementation for backward compatibility
+        file_path="$relative_path/${*:$OPTIND:1}"
+    else
+        printf "ERROR: git_helper.sh not found. Cannot use deprecated --git=URL format.\n"
+        overall_result=1
+        exit 1
+    fi
+else
+    file_path=${*:$OPTIND:1}  #get value after all options (COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH)
+fi
 
 #Concatenate subfolders to './out' if they were passed using the '-o' flag
 if [ -n "$output_subfolder" ]; then
@@ -395,7 +434,7 @@ else
   out_path="/home/jovyan/out"
 fi
 
-# Handle Git mode first - fetch repository
+# Handle Git mode first - fetch repository (NEW METHOD - uses environment variables)
 if [[ $git_mode == true ]]; then
     prepareOutput
     echo "Git mode enabled - fetching repository first"
