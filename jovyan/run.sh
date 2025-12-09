@@ -11,8 +11,8 @@ html_reporting_enabled=false
 json_reporting_enabled=false
 clear_out=true
 git_mode=false
-git_source=""  # DEPRECATED: For backward compatibility with --git=URL format
-relative_path=""  # DEPRECATED: For backward compatibility
+git_source=""    # DEPRECATED: For backward compatibility with --git=URL format
+relative_path="" # DEPRECATED: For backward compatibility
 print_usage() {
     echo -e "   \033[1mUsage:\033[0m bash run.sh [OPTIONS] [-PARAM_NAME=PARAM_VALUE] COMPOSITE_FILE_PATH|NOTEBOOK_FILE_PATH"
     echo -e "   \033[1mExecutes:\033[0m"
@@ -98,14 +98,14 @@ runComposite() {
 }
 
 calculate_composite_notebook_path() {
-	notebook_path="$(echo "$composite_file_content" | yq -oy e ".checks.[$i] | select(.path != null) | .path")"
-	# DEPRECATED: Backward compatibility - check if path exists with relative_path prefix
-	if [[ -n $git_source ]]; then
-		if [[ -f "$relative_path/$notebook_path" ]]; then
-			notebook_path="$relative_path/$notebook_path"
-		fi
-	fi
-	echo "$notebook_path"
+    notebook_path="$(echo "$composite_file_content" | yq -oy e ".checks.[$i] | select(.path != null) | .path")"
+    # DEPRECATED: Backward compatibility - check if path exists with relative_path prefix
+    if [[ -n $git_source ]]; then
+        if [[ -f "$relative_path/$notebook_path" ]]; then
+            notebook_path="$relative_path/$notebook_path"
+        fi
+    fi
+    echo "$notebook_path"
 }
 
 # $1 - executed notebook path
@@ -326,40 +326,40 @@ while getopts ":p:y:j:r:e:o:-:" opt; do
     case ${opt} in
     -)
         case "${OPTARG}" in
-                git)
-                    git_mode=true
-                    ;;
-                git=*)
-                    # DEPRECATED: Backward compatibility - old format --git=URL
-                    if [[ $(cat /etc/cloud-passport/PRODUCTION_MODE 2>/dev/null) == true ]]; then
-                        echo "ERROR. '--git=URL' flag is not available for PRODUCTION_MODE=true"
-                        exit 1
-                    fi
-                    git_source="${OPTARG#git=}"
-                    echo "WARNING: --git=URL format is DEPRECATED. Please use --git flag with GIT_* environment variables instead."
-                    ;;
-                *)
-                # Handling other flags
-                params="${params}
-                ${OPTARG/'='/': '}"
-                if [[ ${OPTARG} == "pdf=false" ]]; then
-                    pdf_reporting_enabled=false
-                fi
-                if [[ ${OPTARG} == "html=true" ]]; then
-                        html_reporting_enabled=true
-                fi
-                if [[ ${OPTARG} == "json=true" ]]; then
-                        json_reporting_enabled=true
-                fi
-                if [[ ${OPTARG} == "clear=false" ]]; then
-                        clear_out=false
-                fi
-                if [[ ${OPTARG} == "git=false" ]]; then
-                        git_mode=false
-                fi
-                ;;
-            esac
+        git)
+            git_mode=true
             ;;
+        git=*)
+            # DEPRECATED: Backward compatibility - old format --git=URL
+            if [[ $(cat /etc/cloud-passport/PRODUCTION_MODE 2>/dev/null) == true ]]; then
+                echo "ERROR. '--git=URL' flag is not available for PRODUCTION_MODE=true"
+                exit 1
+            fi
+            git_source="${OPTARG#git=}"
+            echo "WARNING: --git=URL format is DEPRECATED. Please use --git flag with GIT_* environment variables instead."
+            ;;
+        *)
+            # Handling other flags
+            params="${params}
+${OPTARG/'='/': '}"
+            if [[ ${OPTARG} == "pdf=false" ]]; then
+                pdf_reporting_enabled=false
+            fi
+            if [[ ${OPTARG} == "html=true" ]]; then
+                html_reporting_enabled=true
+            fi
+            if [[ ${OPTARG} == "json=true" ]]; then
+                json_reporting_enabled=true
+            fi
+            if [[ ${OPTARG} == "clear=false" ]]; then
+                clear_out=false
+            fi
+            if [[ ${OPTARG} == "git=false" ]]; then
+                git_mode=false
+            fi
+            ;;
+        esac
+        ;;
     e)
         execute_pass=${OPTARG}
         execute_pass=${execute_pass//,/ } #replacement for env-checker-job for case when value for -e flag will be separated by ','

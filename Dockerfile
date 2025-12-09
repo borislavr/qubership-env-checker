@@ -230,6 +230,8 @@ COPY --chmod=0755 installation/shells/start.sh installation/shells/start-noteboo
 COPY installation/python/jupyter_server_config.py /etc/jupyter/
 # Copy user's working files (relative path from context)
 COPY --chown="${NB_UID}:${NB_GID}" jovyan/ "/home/${NB_USER}/"
+# Make bash scripts executable
+RUN chmod +x "/home/${NB_USER}/run.sh" "/home/${NB_USER}/shells/git_helper.sh" "/home/${NB_USER}/shells/"*.sh 2>/dev/null || true
 # Use the script for set permissions on a directory
 RUN fix-permissions "/home/${NB_USER}"
 

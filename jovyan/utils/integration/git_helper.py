@@ -37,7 +37,7 @@ def check_repo_exists(repo_url: str) -> bool:
     try:
         response = requests.get(repo_url, timeout=10)
         return response.status_code != 404
-    except:
+    except Exception:
         # If request fails, assume repository exists and let git handle it
         return True
 
@@ -81,7 +81,10 @@ def fetch_from_repo(repo_url: str, target_path: str, sparse_path: str,
         FileExistsError: If target_path already exists.
         subprocess.CalledProcessError: If git commands fail.
     """
-    print(f"repo_url={repo_url}, target_path={target_path}, sparse_path={sparse_path}, branch={branch}, subfolder={subfolder}")
+    print(
+        f"repo_url={repo_url}, target_path={target_path}, sparse_path={sparse_path}, "
+        f"branch={branch}, subfolder={subfolder}"
+    )
 
     # Authenticate URL if credentials are available
     repo_url = authenticate_repo_url(repo_url)
@@ -256,3 +259,4 @@ if __name__ == "__main__":
     print("Usage: python3 git_helper.py <repo_url> <target_path> <sparse_path> [branch] [subfolder]")
     print("Or: python3 git_helper.py  # uses GIT_* environment variables")
     sys.exit(1)
+

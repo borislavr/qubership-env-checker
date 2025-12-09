@@ -210,8 +210,8 @@ The script reads credentials in the following priority order:
    - `ENVCHECKER_GIT_DOMAIN` - Git domain (optional, extracted from URL if not set)
 
 2. **Files on disk** (fallback for backward compatibility):
-   - `/etc/git/git-user` - Base64-encoded username
-   - `/etc/git/git-token` - Base64-encoded token
+   - `/etc/git/git-user` - base64-encoded username
+   - `/etc/git/git-token` - base64-encoded token
 
 **Examples:**
 ```bash
@@ -240,7 +240,7 @@ DEBUG: Git authentication URL: https://user:***@git.example.com
 DEBUG: Full Git repository URL: https://git.example.com/repo.git
 ```
 
-**Note**: The legacy bash script is maintained for backward compatibility only. New implementations should use the Python script with environment variables.
+**Note**: The legacy Bash script is maintained for backward compatibility only. New implementations should use the Python script with environment variables.
 
 **Kubernetes/Helm Configuration:**
 

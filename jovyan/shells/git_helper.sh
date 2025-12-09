@@ -10,8 +10,8 @@ git_source_path=$1
 relative_path=$(basename -s .git "$git_source_path" 2>/dev/null || echo "")
 absolute_path="/home/jovyan/$relative_path"
 
-#$1 - path to project source notebooks folder 
-gitProcess(){
+#$1 - path to project source notebooks folder
+gitProcess() {
     # Use global variables (backward compatibility)
     prepare_git_config_files "$git_source_path"
     echo -e "\ngitProcess has been started"
@@ -20,10 +20,10 @@ gitProcess(){
     echo "$relative_path"
 }
 
-prepare_git_config_files(){
+prepare_git_config_files() {
     # Use global git_source_path if provided as argument, otherwise use global variable (backward compatibility)
     local source_path="${1:-$git_source_path}"
-    
+
     git config --global http.sslVerify false
 
     # Try to get credentials from environment variables first (new method)
@@ -32,10 +32,10 @@ prepare_git_config_files(){
 
     # Fallback to files if environment variables are not set (old method for backward compatibility)
     if [ -z "$username" ] && [ -f /etc/git/git-user ]; then
-        username=$(echo -n "$(< /etc/git/git-user)" | base64 -d 2>/dev/null || echo "")
+        username=$(echo -n "$(</etc/git/git-user)" | base64 -d 2>/dev/null || echo "")
     fi
     if [ -z "$token" ] && [ -f /etc/git/git-token ]; then
-        token=$(echo -n "$(< /etc/git/git-token)" | base64 -d 2>/dev/null || echo "")
+        token=$(echo -n "$(</etc/git/git-token)" | base64 -d 2>/dev/null || echo "")
     fi
 
     # If we have credentials, configure Git
@@ -64,13 +64,13 @@ prepare_git_config_files(){
         echo "DEBUG: Using Git domain: $git_domain"
 
         # Store credentials for Git
-        echo "$auth_url" >> ~/.git-credentials
+        echo "$auth_url" >>~/.git-credentials
     else
         echo "WARNING: No Git credentials found (neither ENVCHECKER_GIT_USERNAME/ENVCHECKER_GIT_TOKEN env vars nor /etc/git/git-user/git-token files)"
     fi
 }
 
-check_relative_path_is_exists(){
+check_relative_path_is_exists() {
     # Use global variables (backward compatibility)
     echo "git_source_path=$git_source_path"
     echo "relative_path=$relative_path"
@@ -92,7 +92,7 @@ check_relative_path_is_exists(){
     fi
 }
 
-run_git_checkout(){
+run_git_checkout() {
     # Use global variables (backward compatibility)
     mkdir -p "$relative_path"
     git clone "$git_source_path" "$absolute_path"
@@ -138,9 +138,9 @@ download_folder_or_file_from_git() {
         return 1
     fi
 
-    cd "$output_folder" || exit                    # Goes to the directory into which the repository was cloned.
+    cd "$output_folder" || exit # Goes to the directory into which the repository was cloned.
     echo "Setting up sparse-checkout..."
-    git sparse-checkout init --no-interaction      # Initializes sparse-checkout. --no-interaction - executing a command without user confirmation
+    git sparse-checkout init --no-interaction # Initializes sparse-checkout. --no-interaction - executing a command without user confirmation
     if ! git sparse-checkout set "$folder_or_file_path"; then
         echo "Error configuring sparse-checkout."
         return 1

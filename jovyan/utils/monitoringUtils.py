@@ -9,7 +9,6 @@ import constants
 
 from NotebookMetrics import NotebookMetrics
 from urllib.parse import urljoin
-from typing import Dict
 from opentelemetry import metrics as metricsLib
 from opentelemetry.exporter.prometheus_remote_write import (
     PrometheusRemoteWriteMetricsExporter,
