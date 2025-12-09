@@ -67,7 +67,7 @@ bash run.sh --git notebooks/test.ipynb
 
 This method uses the `--git=URL` format and is maintained for systems that already use this approach.
 
-#### Through `run.sh` Orchestrator
+#### Legacy Method: Through `run.sh` Orchestrator
 ```bash
 bash run.sh --git=https://git.example.com/prod.cse.ssm/env-checker-notebooks.git notebooks/GraylogClusterChecks.ipynb
 ```
@@ -235,7 +235,7 @@ bash shells/git_helper.sh download_folder_or_file \
 
 **Debug Output:**
 The script provides debug information:
-```
+```text
 DEBUG: Git authentication URL: https://user:***@git.example.com
 DEBUG: Full Git repository URL: https://git.example.com/repo.git
 ```

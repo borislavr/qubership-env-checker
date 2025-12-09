@@ -78,7 +78,8 @@ check_relative_path_is_exists(){
 
     # Debug: Show full Git URL (with masked credentials)
     if [[ "$git_source_path" == http* ]]; then
-        local debug_url=$(echo "$git_source_path" | sed -E 's|://([^:]+):([^@]+)@|://\1:***@|')
+        local debug_url
+        debug_url=$(echo "$git_source_path" | sed -E 's|://([^:]+):([^@]+)@|://\1:***@|')
         echo "DEBUG: Full Git repository URL: $debug_url"
     fi
 
@@ -132,8 +133,7 @@ download_folder_or_file_from_git() {
     # --depth 1          - cloning only last commit
     # --filter=blob:none - skipped blob-objects (for data reduction)
     # --sparse           - cloning in sparse-checkout mode
-    git clone --branch "$branch" --depth 1 --filter=blob:none --sparse "$repo_url" "$output_folder"
-    if [ $? -ne 0 ]; then
+    if ! git clone --branch "$branch" --depth 1 --filter=blob:none --sparse "$repo_url" "$output_folder"; then
         echo "Error while cloning repository."
         return 1
     fi
@@ -141,8 +141,7 @@ download_folder_or_file_from_git() {
     cd "$output_folder" || exit                    # Goes to the directory into which the repository was cloned.
     echo "Setting up sparse-checkout..."
     git sparse-checkout init --no-interaction      # Initializes sparse-checkout. --no-interaction - executing a command without user confirmation
-    git sparse-checkout set "$folder_or_file_path" # Downloading file or catalog from variable
-    if [ $? -ne 0 ]; then
+    if ! git sparse-checkout set "$folder_or_file_path"; then
         echo "Error configuring sparse-checkout."
         return 1
     fi
