@@ -259,4 +259,3 @@ if __name__ == "__main__":
     print("Usage: python3 git_helper.py <repo_url> <target_path> <sparse_path> [branch] [subfolder]")
     print("Or: python3 git_helper.py  # uses GIT_* environment variables")
     sys.exit(1)
-
