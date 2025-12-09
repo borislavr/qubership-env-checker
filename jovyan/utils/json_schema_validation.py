@@ -12,8 +12,10 @@ APP_METRICS_SCHEMA = {
         "properties": {
             "initiator": {"type": "string"},
             "last_run": {
-                "$comment": "Amount of unix epoch milliseconds, indicating time when first (!) check in notebook was started. " +
-                "This time is supposed to be same (!) for all applications (namespaces), which are checked in notebook.",
+                "$comment": "Amount of unix epoch milliseconds, indicating time when first (!) " +
+                "check in notebook was started. " +
+                "This time is supposed to be same (!) for all applications (namespaces), " +
+                "which are checked in notebook.",
                 "type": "number",
                 "minimum": 0,
                 "maximum": 2147483647000

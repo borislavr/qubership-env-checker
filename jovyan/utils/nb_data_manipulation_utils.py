@@ -33,7 +33,8 @@ def validate_and_save_metrics(executed_nb_path):
     nb_start_time = parse_papermill_start_time(nb_meta_papermill["start_time"])
     nb_name = Path(executed_nb_path).stem.lower()
 
-    # check if scrap with metric is present in notebook. If not, or if metrics are scraped incorrectly, calculate metrics by
+    # check if scrap with metric is present in notebook.
+    # If not, or if metrics are scraped incorrectly, calculate metrics by
     # papermill metadata
     if METRICS not in nb_scraps or not json_schema_validation.validate_app_metrics_schema_as_dict(nb_scraps[METRICS]):
         try:
@@ -48,13 +49,21 @@ def validate_and_save_metrics(executed_nb_path):
             sys.exit(1)
         ns = 'null'
         app = 'null'
-        res = [{constants.REPORT_NAME_LABEL: nb_name, constants.STATUS: nb_result, constants.LAST_DURATION: nb_duration,
-                constants.LAST_RUN: nb_start_time, constants.REPORT_NAMESPACE_LABEL: ns, constants.REPORT_APP_LABEL: app,
-                constants.INITIATOR_LABEL: constants.DEFAULT_INITIATOR, constants.S3_LINK_LABEL: 'null'}]
+        res = [{
+                constants.REPORT_NAME_LABEL: nb_name,
+                constants.STATUS: nb_result,
+                constants.LAST_DURATION: nb_duration,
+                constants.LAST_RUN: nb_start_time,
+                constants.REPORT_NAMESPACE_LABEL: ns,
+                constants.REPORT_APP_LABEL: app,
+                constants.INITIATOR_LABEL: constants.DEFAULT_INITIATOR,
+                constants.S3_LINK_LABEL: 'null'
+                }]
     # if scrap is present and valid, check for missing optional label values, set them, and save in notebook
     else:
         metrics = nb_scraps[METRICS]
-        # If at least 1 metric doesn't contain 'start_time' or 'initiator' labels, these labels should be updated for every metric
+        # If at least 1 metric doesn't contain 'start_time' or 'initiator' labels,
+        # these labels should be updated for every metric
         # It is needed for creating correct metrics for monitoring
         for m in metrics:
             if constants.LAST_RUN not in m:
@@ -95,9 +104,18 @@ def extract_notebook_execution_data(notebook_base_name: str) -> list[NotebookMet
         metrics = env_checker_meta[METRICS]
         res = []
         for m in metrics:
-            res.append(NotebookMetrics(report_name=m[constants.REPORT_NAME_LABEL], status=m[constants.STATUS], last_duration=m[constants.LAST_DURATION],
-                                        last_run=m[constants.LAST_RUN], s3_link=m[constants.S3_LINK_LABEL], initiator=m[constants.INITIATOR_LABEL],
-                                        report_namespace=m[constants.REPORT_NAMESPACE_LABEL], report_app=m[constants.REPORT_APP_LABEL]))
+            res.append(
+                NotebookMetrics(
+                    report_name=m[constants.REPORT_NAME_LABEL],
+                    status=m[constants.STATUS],
+                    last_duration=m[constants.LAST_DURATION],
+                    last_run=m[constants.LAST_RUN],
+                    s3_link=m[constants.S3_LINK_LABEL],
+                    initiator=m[constants.INITIATOR_LABEL],
+                    report_namespace=m[constants.REPORT_NAMESPACE_LABEL],
+                    report_app=m[constants.REPORT_APP_LABEL]
+                )
+            )
         return res
     print(f'No metrics data was recorded in {nb_path}')
     sys.exit(1)
@@ -116,22 +134,56 @@ def extract_notebook_execution_data_from_result_file(executed_notebook_path: str
                 if METRICS in check:
                     metrics = check[METRICS]
                     for m in metrics:
-                        report_name = extract_label_value_from_result_metric(executed_notebook_path, m, constants.REPORT_NAME_LABEL)
-                        status = extract_label_value_from_result_metric(executed_notebook_path, m, constants.STATUS)
-                        last_duration = extract_label_value_from_result_metric(executed_notebook_path, m, constants.LAST_DURATION)
-                        last_run = extract_label_value_from_result_metric(executed_notebook_path, m, constants.LAST_RUN)
-                        report_app = extract_label_value_from_result_metric(executed_notebook_path, m, constants.REPORT_APP_LABEL)
-                        report_namespace = extract_label_value_from_result_metric(executed_notebook_path, m, constants.REPORT_NAMESPACE_LABEL)
-                        initiator = extract_label_value_from_result_metric(executed_notebook_path, m, constants.INITIATOR_LABEL)
-                        s3_link = extract_label_value_from_result_metric(executed_notebook_path, m, constants.S3_LINK_LABEL)
-                        env = extract_label_value_from_result_metric(executed_notebook_path, m, constants.ENV_LABEL)
-                        scope = extract_label_value_from_result_metric(executed_notebook_path, m, constants.SCOPE_LABEL)
+                        report_name = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.REPORT_NAME_LABEL
+                        )
+                        status = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.STATUS
+                        )
+                        last_duration = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.LAST_DURATION
+                        )
+                        last_run = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.LAST_RUN
+                        )
+                        report_app = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.REPORT_APP_LABEL
+                        )
+                        report_namespace = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.REPORT_NAMESPACE_LABEL
+                        )
+                        initiator = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.INITIATOR_LABEL
+                        )
+                        s3_link = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.S3_LINK_LABEL
+                        )
+                        env = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.ENV_LABEL
+                        )
+                        scope = extract_label_value_from_result_metric(
+                            executed_notebook_path, m, constants.SCOPE_LABEL
+                        )
 
-                        res.append(NotebookMetrics(report_name=report_name, status=status, last_duration=last_duration, last_run=last_run,
-                                                   report_namespace=report_namespace, s3_link=s3_link, report_app = report_app, initiator = initiator,
-                                                   env=env, scope=scope))
+                        res.append(
+                            NotebookMetrics(
+                                report_name=report_name,
+                                status=status,
+                                last_duration=last_duration,
+                                last_run=last_run,
+                                report_namespace=report_namespace,
+                                s3_link=s3_link,
+                                report_app=report_app,
+                                initiator=initiator,
+                                env=env,
+                                scope=scope
+                            )
+                        )
                 else:
-                    print(f"Could not extract 'metrics' section from result.yaml for executed notebook: {executed_notebook_path}")
+                    print(
+                        f"Could not extract 'metrics' section from result.yaml for executed notebook: "
+                        f"{executed_notebook_path}"
+                    )
                     sys.exit(1)
                 return res
         print(f'Cannot find {executed_notebook_path} in result.yaml')
@@ -156,7 +208,10 @@ def extract_notebook_execution_data_for_s3_pushing(notebook_base_name: str) -> d
     nb = nbformat.read(f'out/{notebook_base_name}.ipynb', nbformat.NO_CONVERT)
     try:
         metrics = nb['metadata'][ENV_CHECKER][METRICS][0]
-        return {constants.LAST_RUN: metrics[constants.LAST_RUN], constants.INITIATOR_LABEL: metrics[constants.INITIATOR_LABEL]}
+        return {
+            constants.LAST_RUN: metrics[constants.LAST_RUN],
+            constants.INITIATOR_LABEL: metrics[constants.INITIATOR_LABEL]
+        }
     except Exception:
         print(f"Could not extract execution metrics of notebook: {notebook_base_name}.ipynb")
         sys.exit(1)
@@ -171,14 +226,32 @@ def extract_nb_execution_data_from_result_file_for_s3_pushing(executed_notebook_
                 if METRICS in check:
                     m = check[METRICS][0]
                     return {
-                        constants.REPORT_NAME_LABEL: extract_label_value_from_result_metric(executed_notebook_path, m, constants.REPORT_NAME_LABEL),
-                        constants.INITIATOR_LABEL: extract_label_value_from_result_metric(executed_notebook_path, m, constants.INITIATOR_LABEL),
-                        constants.LAST_RUN: extract_label_value_from_result_metric(executed_notebook_path, m, constants.LAST_RUN),
-                        constants.ENV_LABEL: extract_label_value_from_result_metric(executed_notebook_path, m, constants.ENV_LABEL),
-                        constants.SCOPE_LABEL: extract_label_value_from_result_metric(executed_notebook_path, m, constants.SCOPE_LABEL)
+                        constants.REPORT_NAME_LABEL:
+                            extract_label_value_from_result_metric(
+                                executed_notebook_path, m, constants.REPORT_NAME_LABEL
+                            ),
+                        constants.INITIATOR_LABEL:
+                            extract_label_value_from_result_metric(
+                                executed_notebook_path, m, constants.INITIATOR_LABEL
+                            ),
+                        constants.LAST_RUN:
+                            extract_label_value_from_result_metric(
+                                executed_notebook_path, m, constants.LAST_RUN
+                            ),
+                        constants.ENV_LABEL:
+                            extract_label_value_from_result_metric(
+                                executed_notebook_path, m, constants.ENV_LABEL
+                            ),
+                        constants.SCOPE_LABEL:
+                            extract_label_value_from_result_metric(
+                                executed_notebook_path, m, constants.SCOPE_LABEL
+                            ),
                     }
                 else:
-                    print(f"Could not extract 'metrics' section from result.yaml for executed notebook: {executed_notebook_path}")
+                    print(
+                        f"Could not extract 'metrics' section from result.yaml for executed notebook: "
+                        f"{executed_notebook_path}"
+                    )
                     sys.exit(1)
                 return res
         print(f'Cannot find {executed_notebook_path} in result.yaml')

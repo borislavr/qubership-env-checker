@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.platform.runner }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Set image name
         run: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: "${{ env.FULL_IMAGE_NAME }}"
           tags: |
@@ -71,7 +71,7 @@ jobs:
             org.opencontainers.image.description=${{ matrix.component.description }}
 
       - name: Login to Docker Registry
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           password: ${{secrets.GITHUB_TOKEN}}
           registry: ghcr.io
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload digest
         if: ${{ vars.PUBLISH_DOCKER_IMAGES == 'true' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: digests-${{ matrix.component.name }}-${{ matrix.platform.name }}
           path: ${{ runner.temp }}/digests/*
@@ -149,14 +149,14 @@ jobs:
           IMAGE_NAME: '${{ github.repository }}'
 
       - name: Download digests
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ matrix.component.name }}-*
           merge-multiple: true
 
       - name: Login to Docker Registry
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           password: ${{secrets.GITHUB_TOKEN}}
           registry: ghcr.io
@@ -167,7 +167,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: "${{ env.FULL_IMAGE_NAME }}"
           tags: |
