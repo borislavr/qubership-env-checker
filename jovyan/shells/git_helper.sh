@@ -32,10 +32,20 @@ prepare_git_config_files() {
 
     # Fallback to files if environment variables are not set (old method for backward compatibility)
     if [ -z "$username" ] && [ -f /etc/git/git-user ]; then
-        username=$(echo -n "$(</etc/git/git-user)" | base64 -d 2>/dev/null || echo "")
+        # Try to read as plain text first, then try base64 decode
+        local file_content=$(cat /etc/git/git-user 2>/dev/null || echo "")
+        if [ -n "$file_content" ]; then
+            # Try base64 decode, if it fails, use content as-is
+            username=$(echo -n "$file_content" | base64 -d 2>/dev/null || echo "$file_content")
+        fi
     fi
     if [ -z "$token" ] && [ -f /etc/git/git-token ]; then
-        token=$(echo -n "$(</etc/git/git-token)" | base64 -d 2>/dev/null || echo "")
+        # Try to read as plain text first, then try base64 decode
+        local file_content=$(cat /etc/git/git-token 2>/dev/null || echo "")
+        if [ -n "$file_content" ]; then
+            # Try base64 decode, if it fails, use content as-is
+            token=$(echo -n "$file_content" | base64 -d 2>/dev/null || echo "$file_content")
+        fi
     fi
 
     # If we have credentials, configure Git
@@ -43,8 +53,18 @@ prepare_git_config_files() {
         git config --global credential.username "$username"
         git config --global credential.helper 'store --file ~/.git-credentials'
 
-        # Get domain from environment variable
+        # Get domain from environment variable first
         local git_domain="${ENVCHECKER_GIT_DOMAIN:-}"
+        
+        # Fallback to file if environment variable is not set (old method for backward compatibility)
+        if [ -z "$git_domain" ] && [ -f /etc/git/git-domain ]; then
+            # Try to read as plain text first, then try base64 decode
+            local file_content=$(cat /etc/git/git-domain 2>/dev/null || echo "")
+            if [ -n "$file_content" ]; then
+                # Try base64 decode, if it fails, use content as-is
+                git_domain=$(echo -n "$file_content" | base64 -d 2>/dev/null || echo "$file_content")
+            fi
+        fi
 
         # If domain is not set, try to extract from git_source_path (global or provided)
         if [ -z "$git_domain" ] && [ -n "$source_path" ]; then

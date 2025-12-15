@@ -82,6 +82,11 @@
 {{- define "envchecker.pod.volumeMounts" }}
 - name: application-config
   mountPath: "/etc/config/application.properties"
+{{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
+- name: git-secret
+  mountPath: "/etc/git"
+  readOnly: true
+{{- end }}
 {{- end }}
 
 {{- define "envchecker.pod.resources" }}
@@ -101,4 +106,17 @@ volumes:
       items:
         - key: "application.properties"
           path: "application.properties"
+{{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
+  - name: git-secret
+    secret:
+      secretName: env-checker-git-secret
+      items:
+        # Files for deprecated git method (--git=URL) only
+        - key: ENVCHECKER_GIT_USERNAME
+          path: git-user
+        - key: ENVCHECKER_GIT_TOKEN
+          path: git-token
+        - key: ENVCHECKER_GIT_DOMAIN
+          path: git-domain
+{{- end }}
 {{- end }}
