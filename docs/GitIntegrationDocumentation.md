@@ -41,7 +41,7 @@ bash run.sh --git /path/to/notebook.ipynb
 2. Use `--git` flag (without value) in `run.sh`
 3. The system fetches the repository using `utils/integration/git_helper.py`
 4. Files/folders specified in `GIT_SPARSE_PATH` are downloaded and placed directly into `GIT_TARGET_PATH`
-   - Example: If `GIT_SPARSE_PATH="notebooks/"` and `GIT_TARGET_PATH="/home/jovyan/target"`, 
+   - Example: If `GIT_SPARSE_PATH="notebooks/"` and `GIT_TARGET_PATH="/home/jovyan/target"`,
      then files from `notebooks/` will be placed in `/home/jovyan/target/`
 5. The specified notebook path (relative to `GIT_TARGET_PATH`) is executed after fetching
 
