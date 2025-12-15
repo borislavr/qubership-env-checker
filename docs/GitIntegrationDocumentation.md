@@ -40,8 +40,10 @@ bash run.sh --git /path/to/notebook.ipynb
 1. Set required environment variables (`GIT_REPOSITORY_URL`, `GIT_TARGET_PATH`, etc.)
 2. Use `--git` flag (without value) in `run.sh`
 3. The system fetches the repository using `utils/integration/git_helper.py`
-4. Files are downloaded to `<GIT_TARGET_PATH>/<GIT_SUBFOLDER>/...`
-5. The specified notebook is executed after fetching
+4. Files/folders specified in `GIT_SPARSE_PATH` are downloaded and placed directly into `GIT_TARGET_PATH`
+   - Example: If `GIT_SPARSE_PATH="notebooks/"` and `GIT_TARGET_PATH="/home/jovyan/target"`, 
+     then files from `notebooks/` will be placed in `/home/jovyan/target/`
+5. The specified notebook path (relative to `GIT_TARGET_PATH`) is executed after fetching
 
 **Advantages:**
 - More secure (credentials via environment variables)
@@ -106,8 +108,7 @@ success = run_fetch(
     repo_url="https://github.com/owner/repo.git",
     target_path="/home/jovyan/target",
     sparse_path="path/to/file.ipynb",
-    branch="main",
-    subfolder="optional/subfolder"
+    branch="main"
 )
 ```
 
@@ -123,7 +124,6 @@ These environment variables are used by the new Git integration method (`--git` 
 | `GIT_TARGET_PATH`    | Local directory for fetched files                                    | Yes       | -         |
 | `GIT_SPARSE_PATH`    | Path to fetch from repository                                        | No        | All files |
 | `GIT_BRANCH`         | Branch to fetch from                                                 | No        | `main`    |
-| `GIT_SUBFOLDER`      | Subfolder for file organization                                      | No        | Empty     |
 | `GIT_USERNAME`       | Git username for authentication (mandatory for private repositories) | No        | -         |
 | `GIT_TOKEN`          | Git token for authentication (mandatory for private repositories)    | No        | -         |
 
@@ -165,7 +165,7 @@ The script outputs debug information including:
 python git_helper.py
 
 # With explicit arguments
-python git_helper.py <repo_url> <target_path> <sparse_path> [branch] [subfolder]
+python git_helper.py <repo_url> <target_path> <sparse_path> [branch]
 ```
 
 **Examples:**
@@ -189,8 +189,7 @@ python git_helper.py \
   "https://github.com/owner/repo.git" \
   "/home/jovyan/target" \
   "notebooks/" \
-  "develop" \
-  "project/subfolder"
+  "develop"
 ```
 
 #### Legacy Method - Bash Script (Deprecated)
@@ -260,7 +259,6 @@ git:
   targetPath: '/home/jovyan/target'
   sparsePath: 'notebooks/'
   branch: 'main'
-  subfolder: ''
 ```
 
 This creates a Secret with:
@@ -274,14 +272,18 @@ The Secret is automatically mounted as environment variables in the Pod.
 ## Path Handling Differences
 
 ### New Method (Environment Variables)
-- Files are fetched to `<GIT_TARGET_PATH>/<GIT_SUBFOLDER>/...`
-- File paths in `run.sh` are used as-is (no automatic prefix)
-- You must specify the full path relative to `GIT_TARGET_PATH`
+- Files/folders from `GIT_SPARSE_PATH` are fetched and placed directly into `GIT_TARGET_PATH`
+- The structure from `GIT_SPARSE_PATH` is preserved inside `GIT_TARGET_PATH`
+- File paths in `run.sh` must be specified as full paths starting from `GIT_TARGET_PATH`
 
 **Example:**
 ```bash
+# Configuration:
 export GIT_TARGET_PATH="/home/jovyan/target"
-export GIT_SPARSE_PATH="notebooks/"
+export GIT_SPARSE_PATH="notebooks/"  # Files from notebooks/ in repo
+
+# After fetch, files will be in: /home/jovyan/target/notebooks/test.ipynb
+# So the command should be:
 bash run.sh --git /home/jovyan/target/notebooks/test.ipynb
 ```
 

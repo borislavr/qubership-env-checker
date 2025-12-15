@@ -71,5 +71,3 @@ git:
   sparsePath: ''
   # Branch of the GIT repository to fetch files from.
   branch: 'main'
-  # Subfolder inside targetPath where fetched files will be moved (optional).
-  subfolder: ''

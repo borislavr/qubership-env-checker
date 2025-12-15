@@ -57,11 +57,6 @@
     secretKeyRef:
       name: env-checker-git-secret
       key: GIT_BRANCH
-- name: "GIT_SUBFOLDER"
-  valueFrom:
-    secretKeyRef:
-      name: env-checker-git-secret
-      key: GIT_SUBFOLDER
 # Legacy variables for backward compatibility with old git_helper.sh
 - name: "ENVCHECKER_GIT_USERNAME"
   valueFrom:
