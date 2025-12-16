@@ -27,6 +27,7 @@
 {{- end }}
 
 {{- define "envchecker.git.env" }}
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
 - name: "GIT_USERNAME"
   valueFrom:
     secretKeyRef:
@@ -74,13 +75,16 @@
       name: env-checker-git-secret
       key: ENVCHECKER_GIT_DOMAIN
 {{- end }}
+{{- end }}
 {{- define "envchecker.pod.volumeMounts" }}
 - name: application-config
   mountPath: "/etc/config/application.properties"
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
 {{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
 - name: git-secret
   mountPath: "/etc/git"
   readOnly: true
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -101,6 +105,7 @@ volumes:
       items:
         - key: "application.properties"
           path: "application.properties"
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
 {{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
   - name: git-secret
     secret:
@@ -113,5 +118,6 @@ volumes:
           path: git-token
         - key: ENVCHECKER_GIT_DOMAIN
           path: git-domain
+{{- end }}
 {{- end }}
 {{- end }}
