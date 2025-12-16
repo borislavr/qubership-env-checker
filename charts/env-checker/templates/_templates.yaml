@@ -25,9 +25,67 @@
       name: cloud-passport-envs
       key: CLOUD_PUBLIC_HOST
 {{- end }}
+
+{{- define "envchecker.git.env" }}
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
+- name: "GIT_USERNAME"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_USERNAME
+- name: "GIT_TOKEN"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_TOKEN
+- name: "GIT_REPOSITORY_URL"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_REPOSITORY_URL
+- name: "GIT_TARGET_PATH"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_TARGET_PATH
+- name: "GIT_SPARSE_PATH"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_SPARSE_PATH
+- name: "GIT_BRANCH"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: GIT_BRANCH
+# Legacy variables for backward compatibility with old git_helper.sh
+- name: "ENVCHECKER_GIT_USERNAME"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: ENVCHECKER_GIT_USERNAME
+- name: "ENVCHECKER_GIT_TOKEN"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: ENVCHECKER_GIT_TOKEN
+- name: "ENVCHECKER_GIT_DOMAIN"
+  valueFrom:
+    secretKeyRef:
+      name: env-checker-git-secret
+      key: ENVCHECKER_GIT_DOMAIN
+{{- end }}
+{{- end }}
 {{- define "envchecker.pod.volumeMounts" }}
 - name: application-config
   mountPath: "/etc/config/application.properties"
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
+{{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
+- name: git-secret
+  mountPath: "/etc/git"
+  readOnly: true
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- define "envchecker.pod.resources" }}
@@ -47,4 +105,19 @@ volumes:
       items:
         - key: "application.properties"
           path: "application.properties"
+{{- if or (and .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN .Values.ENVCHECKER_GIT_DOMAIN) (and .Values.git.username .Values.git.token) }}
+{{- if or .Values.ENVCHECKER_GIT_USERNAME .Values.ENVCHECKER_GIT_TOKEN }}
+  - name: git-secret
+    secret:
+      secretName: env-checker-git-secret
+      items:
+        # Files for deprecated git method (--git=URL) only
+        - key: ENVCHECKER_GIT_USERNAME
+          path: git-user
+        - key: ENVCHECKER_GIT_TOKEN
+          path: git-token
+        - key: ENVCHECKER_GIT_DOMAIN
+          path: git-domain
+{{- end }}
+{{- end }}
 {{- end }}
