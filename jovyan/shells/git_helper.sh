@@ -6,7 +6,7 @@
 
 # Set global variables on top level (for backward compatibility with source)
 git_source_path=$1
-# get folder for storage "https://git.example.com/prod.cse.ssm/env-checker-notebooks.git" -> "env-checker-notebooks"
+# get folder for storage "https://git.example.com/project/env-checker-notebooks.git" -> "env-checker-notebooks"
 relative_path=$(basename -s .git "$git_source_path" 2>/dev/null || echo "")
 absolute_path="/home/jovyan/$relative_path"
 
