@@ -71,7 +71,7 @@ This method uses the `--git=URL` format and is maintained for systems that alrea
 
 #### Legacy Method: Through `run.sh` Orchestrator
 ```bash
-bash run.sh --git=https://git.example.com/prod.cse.ssm/env-checker-notebooks.git notebooks/GraylogClusterChecks.ipynb
+bash run.sh --git=https://git.example.com/project/env-checker-notebooks.git notebooks/GraylogClusterChecks.ipynb
 ```
 
 **How it works:**
@@ -90,7 +90,7 @@ bash run.sh --git=https://git.example.com/prod.cse.ssm/env-checker-notebooks.git
 
 **Example:**
 ```bash
-bash run.sh --git=https://git.example.com/prod.cse.ssm/env-checker-notebooks.git notebooks/GraylogClusterChecks.ipynb
+bash run.sh --git=https://git.example.com/project/env-checker-notebooks.git notebooks/GraylogClusterChecks.ipynb
 ```
 
 **Migration Guide:**
