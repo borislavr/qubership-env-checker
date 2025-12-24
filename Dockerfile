@@ -135,7 +135,7 @@ RUN set -x && \
     echo "Content of /tmp/mamba_list_python.txt:" && \
     cat /tmp/mamba_list_python.txt && \
     # Debugging: Use awk to extract the python package line
-    if ! awk '/^python[[:space:]]/ {print $1, $2}' /tmp/mamba_list_python.txt > /tmp/awk_python.txt; then \
+    if ! awk '/^[[:space:]]*python[[:space:]]/ {print $1, $2}' /tmp/mamba_list_python.txt > /tmp/awk_python.txt; then \
         echo "Failed to extract python packages with awk"; \
         exit 1; \
     fi && \
