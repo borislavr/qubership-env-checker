@@ -268,7 +268,7 @@ RUN set -x && \
     else \
         echo "Unsupported architecture: ${arch}"; exit 1; \
     fi && \
-    wget --progress=dot:giga https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_${YQ_ARCH}.tar.gz && \
+    wget --progress=dot:giga https://github.com/mikefarah/yq/releases/download/v4.50.1/yq_linux_${YQ_ARCH}.tar.gz && \
     tar -xzvf yq_linux_${YQ_ARCH}.tar.gz -C /usr/bin/ && \
     mv /usr/bin/yq_linux_${YQ_ARCH} /usr/bin/yq && \
     chmod +x /usr/bin/yq && \
