@@ -153,6 +153,15 @@ jobs:
         run: |
           echo "IMAGE_VERSION=${{ fromJson(needs.chart-release.outputs.images-versions)[matrix.component.name] || inputs.release }}" >> $GITHUB_ENV
 
+      - name: "Generate tags list"
+        id: generate-tags
+        uses: netcracker/qubership-workflow-hub/actions/metadata-action@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
+        with:
+          ref: ${{ inputs.release }}
+          default-template: "{{major}}.{{minor}}.{{patch}},{{major}}.{{minor}},{{major}}"
+          extra-tags: ''
+          replace-symbol: '_'
+
       - name: "Docker build and publish"
         uses: netcracker/qubership-workflow-hub/actions/docker-action@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
         with:
@@ -161,7 +170,7 @@ jobs:
           dry-run: false
           component: ${{ toJson(matrix.component) }}
           platforms: ${{ matrix.component.platforms }}
-          tags: "${{ env.IMAGE_VERSION }},latest"
+          tags: "${{ steps.generate-tags.outputs.result }},latest"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 

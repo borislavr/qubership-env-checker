@@ -93,7 +93,7 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
         id: metadata
         with:
-          default-template: "{{ref-name}}"
+          default-template: "{{ref-name}},git-{{commit-short-sha}}"
           extra-tags: ${{ github.event.inputs.tags || '' }}
           replace-symbol: ${{ github.event.inputs.replace-symbol || '_'}}
 
