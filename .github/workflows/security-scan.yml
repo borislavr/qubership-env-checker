@@ -112,15 +112,34 @@ jobs:
       continue-on-error: ${{ matrix.package.security_continue_on_error }}
       runner: ${{ matrix.os }}
 
+  # security-scan-single:
+  #   permissions:
+  #     contents: read
+  #     security-events: write
+  #     packages: read
+  #   if: ${{ inputs.image != '' && inputs.image != null }}
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-24.04, ubuntu-24.04-arm]
+  #   name: "Run Security Scan (single image)"
+  #   #uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
+  #   uses: borislavr/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
+  #   with:
+  #     target: ${{ inputs.target || 'docker' }}
+  #     image: ${{ inputs.image }}
+  #     only-high-critical: ${{ inputs.only-high-critical || true }}
+  #     trivy-scan: ${{ inputs.trivy-scan || true }}
+  #     grype-scan: ${{ inputs.grype-scan || true }}
+  #     only-fixed: ${{ inputs.only-fixed || true }}
+  #     continue-on-error: ${{ inputs.continue-on-error || true }}
+  #     runner: ${{ matrix.os }}
+
   security-scan-single:
     permissions:
       contents: read
       security-events: write
       packages: read
     if: ${{ inputs.image != '' && inputs.image != null }}
-    strategy:
-      matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
     name: "Run Security Scan (single image)"
     #uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
     uses: borislavr/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
@@ -132,4 +151,3 @@ jobs:
       grype-scan: ${{ inputs.grype-scan || true }}
       only-fixed: ${{ inputs.only-fixed || true }}
       continue-on-error: ${{ inputs.continue-on-error || true }}
-      runner: ${{ matrix.os }}
