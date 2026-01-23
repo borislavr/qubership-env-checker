@@ -25,6 +25,7 @@ on:
         description: 'Release version'
         required: true
         type: string
+  push: {}
 
 permissions:
   contents: read
