@@ -194,8 +194,8 @@ jobs:
         with:
           config-name: release-drafter-config.yml
           publish: true
-          name: ${{ inputs.release }}
-          tag: ${{ inputs.release }}
+          name: v${{ inputs.release }}
+          tag: v${{ inputs.release }}
           version: ${{ inputs.release }}
           commitish: release-${{ inputs.release }}
         env:
