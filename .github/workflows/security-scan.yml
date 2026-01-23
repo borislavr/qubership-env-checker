@@ -48,7 +48,6 @@ on:
         type: boolean
   schedule:
     - cron: "0 1 * * 0" # every Sunday at 01:00 UTC
-  push: {}
 
 jobs:
   load-config:
