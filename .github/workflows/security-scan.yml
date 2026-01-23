@@ -98,7 +98,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJson(needs.load-config.outputs.packages) }}
-        os: [ubuntu-24.04, ubuntu-24.04-arm64]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
     name: "Run Security Scan (matrix)"
     # uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
     uses: borislavr/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
@@ -120,7 +120,7 @@ jobs:
     if: ${{ inputs.image != '' && inputs.image != null }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm64]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
     name: "Run Security Scan (single image)"
     #uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@d53e0ff4ca97bd496974febd9aee460d1c5e9ba9 #v2.0.8
     uses: borislavr/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
