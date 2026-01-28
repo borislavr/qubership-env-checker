@@ -103,7 +103,7 @@ jobs:
 
   docker-build:
     needs: [tag, load-docker-build-components]
-    uses: netcracker/qubership-workflow-hub/.github/workflows/docker-publish.yml@c1a5c8c2d9c2a79f548134db1d095f36ee0f28e7 # v2.0.7
+    uses: netcracker/qubership-workflow-hub/.github/workflows/docker-publish.yml@ac0b35120b940eaa644cdcfee7d4957038998ec2 # v2.0.9
     with:
       ref: v${{ inputs.version }}
       download-artifact: false
