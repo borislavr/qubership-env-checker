@@ -97,7 +97,7 @@ jobs:
           commit_message: "Update chart version to v${{ github.event.inputs.version }}"
   tag:
     needs: [change-chart]
-    uses: netcracker/qubership-workflow-hub/.github/workflows/tag-creator.yml@c1a5c8c2d9c2a79f548134db1d095f36ee0f28e7 # v2.0.7
+    uses: netcracker/qubership-workflow-hub/.github/workflows/tag-creator.yml@ac0b35120b940eaa644cdcfee7d4957038998ec2 # v2.0.9
     with:
       tag-name: "v${{ github.event.inputs.version }}"
 
